@@ -7,7 +7,7 @@ import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 
-CLIENT_SECRETS_FILE = "client_secret.json"
+CLIENT_SECRETS_FILE = "client_secret_bajji93.json"
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
@@ -70,14 +70,16 @@ def revoke():
 
   credentials = google.oauth2.credentials.Credentials(
     **flask.session['credentials'])
-
+  print(credentials.token)
   revoke = requests.post('https://accounts.google.com/o/oauth2/revoke',
       params={'token': credentials.token},
       headers = {'content-type': 'application/x-www-form-urlencoded'})
 
   status_code = getattr(revoke, 'status_code')
-
-  flask.redirect('/#')
+  if status_code == 200:
+    return('Credentials successfully revoked.')
+  else:
+    return('An error occurred.')
 
 @app.route('/clear')
 def clear_credentials():
@@ -106,6 +108,28 @@ def test():
   #              credentials in a persistent database instead.
   flask.session['credentials'] = credentials_to_dict(credentials)
 
+  return flask.jsonify(**channel)
+
+@app.route('/getStreams')
+def getStreams():
+  if 'credentials' not in flask.session:
+    return flask.redirect('authorize')
+
+  # Load credentials from the session.
+  credentials = google.oauth2.credentials.Credentials(
+      **flask.session['credentials'])
+
+  youtube = googleapiclient.discovery.build(
+      API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
+  channel = youtube.liveBroadcasts().list(
+    broadcastStatus='active',
+    broadcastType='all',
+    part="id,snippet",
+    maxResults=50
+  ).execute()
+
+  flask.session['credentials'] = credentials_to_dict(credentials)
   return flask.jsonify(**channel)
 
 def credentials_to_dict(credentials):
