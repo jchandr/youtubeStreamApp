@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_PATH = 'http://localhost:5003/'
+const API_PATH = 'https://youtube-stream-app.herokuapp.com/'
 
 export default {
   authenticateUser () {
