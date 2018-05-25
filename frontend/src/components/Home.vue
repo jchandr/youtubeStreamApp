@@ -9,26 +9,22 @@
 </template>
 
 <script>
-import axios from 'axios'
-export default {
-  data () {
-    return {
-      randomNumber: 0
-    }
-  },
-  methods: {
-    authenticate () {
-      const path = `http://localhost:5003/authorize`
-      axios.get(path)
-      .then(({data}) => {
-        window.location.href = data
-      })
-      .catch(error => {
-        console.log(error)
-      })
+  import API from '../api'
+  export default {
+    data () {
+    },
+    methods: {
+      authenticate () {
+        API.authenticateUser()
+        .then(({data}) => {
+          window.location.href = data
+        })
+        .catch(error => {
+          console.log(error)
+        })
+      }
     }
   }
-}
 </script>
 
 <style>

@@ -29,68 +29,67 @@
 </template>
 
 <script>
-import axios from 'axios'
-import dummyData from '../../dummyData'
-import Comment from '../Comment'
-export default {
-  name: 'ShowLive',
-  props: {
-    id: String,
-    liveSteamData: Object
-  },
-  data () {
-    return {
-      commentsData: dummyData,
-      inputMessage: ''
-    }
-  },
-  methods: {
-    pollComments () {
-      const path = 'http://localhost:5003/getChatMessages/' + this.liveSteamData.snippet.liveChatId
-      axios.get(path)
-      .then(({data}) => {
-        this.liveComments = data
-      })
+  import dummyData from '../../dummyData'
+  import Comment from '../Comment'
+  import API from '../../api'
+  export default {
+    name: 'ShowLive',
+    props: {
+      id: String,
+      liveSteamData: Object
     },
-    handleMessageSend () {
-      const path = 'http://localhost:5003/postMessage/' + this.liveSteamData.snippet.liveChatId
-      axios.post(path, {
-        snippet: {
-          liveChatId: this.liveSteamData.snippet.liveChatId,
-          type: 'textMessageEvent',
-          textMessageDetails: {
-            messageText: this.inputMessage
+    data () {
+      return {
+        commentsData: dummyData,
+        inputMessage: ''
+      }
+    },
+    methods: {
+      pollComments () {
+        API.pollComments(this.liveSteamData.snippet.liveChatId)
+        .then(({data}) => {
+          this.liveComments = data
+        })
+      },
+      handleMessageSend () {
+        const messageBody = {
+          snippet: {
+            liveChatId: this.liveSteamData.snippet.liveChatId,
+            type: 'textMessageEvent',
+            textMessageDetails: {
+              messageText: this.inputMessage
+            }
           }
         }
-      })
-      .then(() => {
-        this.inputMessage = ''
-      })
-    }
-  },
-  computed: {
-    liveLink () {
-      return 'https://www.youtube.com/embed/' + this.id + '?autoplay=1'
-    },
-    liveComments: {
-      get () {
-        return this.commentsData
-      },
-      set (newVal) {
-        this.commentsData = Object.assign({}, newVal)
+        API.sendMessage(messageBody)
+        .then(() => {
+          this.inputMessage = ''
+        })
       }
-    }
-  },
-  mounted () {
-    this.pollComments()
-    setInterval(function () {
+    },
+    computed: {
+      liveLink () {
+        return 'https://www.youtube.com/embed/' + this.id + '?autoplay=1'
+      },
+      liveComments: {
+        get () {
+          return this.commentsData
+        },
+        set (newVal) {
+          this.commentsData = Object.assign({}, newVal)
+        }
+      }
+    },
+    mounted () {
       this.pollComments()
-    }.bind(this), 1500)
-  },
-  components: {
-    Comment
+      setInterval(function () {
+        this.pollComments()
+      }.bind(this), 1500)
+    },
+    components: {
+      Comment
+    }
   }
-}
 </script>
 
 <style>
