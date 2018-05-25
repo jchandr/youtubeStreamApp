@@ -4,7 +4,7 @@ const API_PATH = 'https://youtube-stream-app.herokuapp.com/'
 
 export default {
   authenticateUser () {
-    const endpoint = API_PATH + 'authenticate'
+    const endpoint = API_PATH + 'authorize'
     return axios.get(endpoint)
   },
   pollComments (chatId) {
