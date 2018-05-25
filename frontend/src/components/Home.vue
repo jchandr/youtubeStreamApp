@@ -17,6 +17,7 @@
       authenticate () {
         API.authenticateUser()
         .then(({data}) => {
+          console.log(data)
           window.location.href = data
         })
         .catch(error => {
