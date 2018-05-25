@@ -36,7 +36,7 @@
 
 <script>
 import axios from 'axios'
-// import liveData from '../../dummyData'
+
 export default {
   name: 'StreamHome',
   data () {

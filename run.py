@@ -132,6 +132,26 @@ def getStreams():
   flask.session['credentials'] = credentials_to_dict(credentials)
   return flask.jsonify(**channel)
 
+@app.route('/getChatMessages/<id>')
+def getChatMessages(id):
+    if 'credentials' not in flask.session:
+      return flask.redirect('authorize')
+
+    # Load credentials from the session.
+    credentials = google.oauth2.credentials.Credentials(
+        **flask.session['credentials'])
+
+    youtube = googleapiclient.discovery.build(
+        API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
+    channel = youtube.liveChatMessages().list(
+      liveChatId=id,
+      part="id,snippet,authorDetails",
+    ).execute()
+
+    flask.session['credentials'] = credentials_to_dict(credentials)
+    return flask.jsonify(**channel)
+
 def credentials_to_dict(credentials):
     return {'token': credentials.token,
       'refresh_token': credentials.refresh_token,
